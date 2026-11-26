@@ -1,0 +1,6 @@
+# Human review of JavaScript is assigned to @motmot3000.
+# index.html is included because it loads the scripts.
+# GitHub requests code owners automatically only on public repositories or paid
+# plans: on a private free repository, request the review by hand.
+*.js        @motmot3000
+/index.html @motmot3000
