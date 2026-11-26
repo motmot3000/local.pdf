@@ -28,6 +28,12 @@ dip-pdf (LocalPDF) is vibe coded: much of its code is written with AI assistants
 - Fill in the pull request template: what changed, why, how to test it, the risks, and how AI was involved.
 - The maintainer, @motmot3000, decides when to merge.
 
+## Merging
+
+- A pull request into `dev` is merged with **Squash and merge**: its title becomes the single commit on `dev`, so keep the title in Conventional Commits form.
+- The release pull request from `dev` into `main` is merged with **Create a merge commit**. Never squash or rebase it: `main` and `dev` would diverge.
+- Delete a working branch once it is merged. Never delete `dev` or `main`.
+
 ## Say whether it is vibe coded
 
 Every pull request states how it was produced:
