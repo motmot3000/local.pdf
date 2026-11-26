@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LocalPDF</title>
+    
+    <!-- Meta Tags -->
+    <meta name="description" content="LocalPDF manipule vos PDF dans le navigateur, sans serveur et hors ligne.">
+    <meta name="theme-color" content="#0ea5e9">
+    
+    <link rel="stylesheet" href="styles.css">
+    <script src="js/pdf-lib.min.js"></script>
+    <script src="js/pdf.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1 data-i18n="app.title">📄 LocalPDF</h1>
+            <div class="language-switcher">
+                <label for="languageSelect" data-i18n="language.label">Langue</label>
+                <select id="languageSelect" aria-label="Language">
+                    <option value="fr">FR</option>
+                    <option value="en">EN</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="wizard-container">
+            <div class="wizard-steps">
+                <div class="step active" data-step="1">
+                    <h3 data-i18n="step.import.title">📁 Import</h3>
+                    <p data-i18n="step.import.description">Ajouter des fichiers PDF</p>
+                </div>
+                <div class="step" data-step="2">
+                    <h3 data-i18n="step.edit.title">✂️ Modification</h3>
+                    <p data-i18n="step.edit.description">Sélectionner et organiser les pages</p>
+                </div>
+                <div class="step" data-step="3">
+                    <h3 data-i18n="step.result.title">💾 Résultat</h3>
+                    <p data-i18n="step.result.description">Obtenir votre résultat</p>
+                </div>
+            </div>
+
+            <!-- Étape 1: Import -->
+            <div class="step-content active" id="step1">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon" data-i18n="upload.icon">📁</div>
+                    <h3 data-i18n="upload.title">Déposez les fichiers PDF ici ou cliquez pour parcourir</h3>
+                    <p data-i18n="upload.description">Vous pouvez télécharger plusieurs fichiers PDF à la fois</p>
+                    <input type="file" id="fileInput" class="file-input" multiple accept=".pdf">
+                </div>
+                <div id="uploadedFiles"></div>
+                <div class="text-center" style="margin-top: 30px;">
+                    <button class="btn" id="proceedToEdit" data-i18n="button.proceedEdit" disabled>Passer à l'édition →</button>
+                </div>
+            </div>
+
+            <!-- Étape 2: Édition -->
+            <div class="step-content" id="step2">
+                <div class="controls">
+                    <div class="slider-container">
+                        <label for="gridSize" data-i18n="grid.size">Taille de la grille :</label>
+                        <input type="range" id="gridSize" class="slider" min="2" max="8" value="4">
+                        <span id="gridSizeValue">4</span>
+                    </div>
+                    <div class="batch-actions">
+                        <button class="btn btn-secondary" id="selectAll" data-i18n="button.selectAll">Tout sélectionner</button>
+                        <button class="btn btn-secondary" id="deselectAll" data-i18n="button.deselectAll">Tout désélectionner</button>
+                        <button class="btn btn-secondary" id="deleteSelected" data-i18n="button.deleteSelected">Supprimer la sélection</button>
+                        <button class="btn btn-secondary" id="rotateSelected" data-i18n="button.rotateSelected">Faire pivoter la sélection</button>
+                        <button class="btn btn-warning" id="restoreInitial" data-i18n="button.restoreInitial">🔄 Restaurer l'état initial</button>
+                    </div>
+                </div>
+                
+                <!-- Container for drag and drop messages -->
+                <div id="editControls"></div>
+                
+                <!-- Document legend for multiple PDFs -->
+                <div id="documentLegend"></div>
+                
+                <div id="pdfGrid" class="pdf-grid"></div>
+                
+                <div class="text-center" style="margin-top: 30px;">
+                    <button class="btn btn-secondary" id="backToUpload" data-i18n="button.back">← Retour</button>
+                    <button class="btn" id="proceedToDownload" data-i18n="button.proceedDownload" disabled>Passer au téléchargement →</button>
+                </div>
+            </div>
+
+            <!-- Étape 3: Téléchargement -->
+            <div class="step-content" id="step3">
+                <div class="output-section">
+                    <h2 data-i18n="download.title">🎉 Votre PDF est prêt !</h2>
+                    <p data-i18n="download.description">Créez un ou plusieurs PDFs à partir de vos pages</p>
+                    
+                    <div class="pdf-outputs" id="pdfOutputs">
+                        <!-- Initial PDF output -->
+                        <div class="pdf-output-item" data-output-id="1">
+                            <div class="pdf-output-header">
+                                <h3 data-i18n="output.title" data-number="1">📄 PDF #1</h3>
+                                <button class="remove-output-btn" style="display: none;" data-i18n-title="output.remove.title" title="Supprimer ce PDF"></button>
+                            </div>
+                            <div class="pdf-output-controls">
+                                <div class="filename-section">
+                                    <label data-i18n="output.filename">Nom du fichier :</label>
+                                    <div class="input-with-suffix">
+                                        <input type="text" class="filename-input" data-i18n-placeholder="output.filename.placeholder" placeholder="localpdf" value="localpdf">
+                                        <span class="file-suffix">.pdf</span>
+                                    </div>
+                                </div>
+                                <div class="pages-section">
+                                    <label data-i18n="output.pages">Pages à inclure :</label>
+                                    <input type="text" class="pages-input" data-i18n-placeholder="output.pages.placeholder" data-i18n-title="output.pages.title" placeholder="1-3,5,7-9 ou laissez vide pour toutes les pages" title="Exemples: 1-3,5,7-9 ou 1,2,3 ou laissez vide pour toutes les pages">
+                                    <div class="pages-help" data-i18n="output.pages.help">💡 Formats acceptés : 1-5 (plage), 1,3,5 (pages individuelles), ou combinaison 1-3,5,7-9</div>
+                                </div>
+                                <div class="preview-section">
+                                    <span class="pages-preview">Toutes les pages (0 pages)</span>
+                                    <span class="total-pages visually-hidden">0</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="output-actions">
+                        <button class="btn btn-secondary" id="addAnotherPdf" data-i18n="button.addPdf">➕ Ajouter un autre PDF</button>
+                    </div>
+                    
+                    <div class="progress-container" id="progressContainer">
+                        <div class="progress-header">
+                            <span id="progressText" data-i18n="progress.generating">Génération en cours...</span>
+                            <span id="progressPercentage">0%</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="progressBar" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="download-actions">
+                        <button class="btn btn-secondary" id="backToEdit" data-i18n="button.backEdit">← Retour à l'édition</button>
+                        <button class="btn btn-success" id="downloadPdf" data-i18n="button.download">📥 Télécharger le(s) PDF(s)</button>
+                    </div>
+                    
+                    <div id="downloadMessages"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="i18n.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
