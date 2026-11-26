@@ -1,6 +1,6 @@
 # local.pdf (futur fork of dip.pdf)
 
-**LocalPDF**: a sovereign PDF manipulation app for the DIP (Geneva).
+**Local.pdf**: a sovereign PDF manipulation app for the DIP (Geneva).
 *Application de manipulation de PDF souveraine pour le DIP (Genève).*
 
 > [!WARNING]
