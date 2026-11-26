@@ -1,1 +1,21 @@
- 
+# Operating system
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*~
+
+# Tooling and logs
+node_modules/
+*.log
+
+# Secrets
+.env
+.env.*
+
+# PDFs: test files must not contain personal data (pupils, staff, administrative files).
+# To commit a deliberate, anonymised fixture: git add -f path/to/file.pdf
+*.pdf
